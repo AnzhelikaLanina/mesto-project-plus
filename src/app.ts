@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import helmet from 'helmet';
 import mongoose from 'mongoose';
 import userRouter from './routes/users';
 import cardRouter from './routes/cards';
@@ -10,6 +11,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(helmet());
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 

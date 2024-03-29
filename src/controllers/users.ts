@@ -6,7 +6,7 @@ import { BAD_REQUEST_ERROR, NOT_FOUND_ERROR, SERVER_ERROR } from '../constants/e
 export const getUsers = async (req: Request, res: Response) => {
   try {
     const users = await user.find({});
-    return res.status(200).send(users);
+    return res.send(users);
   } catch (error) {
     return res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
   }
@@ -34,7 +34,7 @@ export const createUser = async (req: Request, res: Response) => {
       return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные для создания пользователя' });
     }
     const newUser = await user.create({ name, about, avatar });
-    return res.status(200).send(newUser);
+    return res.status(201).send(newUser);
   } catch (error) {
     if (error instanceof Error && error.name === 'ValidationError') {
       return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные для создания карточки' });
@@ -49,7 +49,11 @@ export const updateUser = async (req: any, res: Response) => {
     if (!name || !about) {
       return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные для изменения профиля пользователя' });
     }
-    const newInfoUser = await user.findByIdAndUpdate(req.user._id, { name, about });
+    const newInfoUser = await user.findByIdAndUpdate(
+      req.user._id,
+      { name, about },
+      { new: true, runValidators: true },
+    );
     return res.status(200).send(newInfoUser);
   } catch (error) {
     if (error instanceof Error && error.name === 'ValidationError') {
@@ -65,7 +69,11 @@ export const updateUserAvatar = async (req: any, res: Response) => {
     if (!avatar) {
       return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные для изменения аватара пользователя' });
     }
-    const newAvatarUser = await user.findByIdAndUpdate(req.user._id, { avatar });
+    const newAvatarUser = await user.findByIdAndUpdate(
+      req.user._id,
+      { avatar },
+      { new: true, runValidators: true },
+    );
     return res.status(200).send(newAvatarUser);
   } catch (error) {
     if (error instanceof Error && error.name === 'ValidationError') {

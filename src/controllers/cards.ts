@@ -20,7 +20,7 @@ export const createCard = async (req: any, res: Response) => {
     }
     const owner = req.user._id;
     const newCard = card.create({ name, link, owner });
-    return res.status(200).send(newCard);
+    return res.status(201).send(newCard);
   } catch (error) {
     if (error instanceof Error && error.name === 'ValidationError') {
       return res.status(BAD_REQUEST_ERROR).send({ message: 'Переданы некорректные данные для создания карточки' });

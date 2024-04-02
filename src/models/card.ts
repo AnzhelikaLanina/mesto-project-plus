@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import validator from 'validator';
+import { validateUrl } from '../constants/validation';
 
 interface ICard {
   name: string;
@@ -19,7 +19,7 @@ const cardSchema = new mongoose.Schema<ICard>({
   link: {
     type: String,
     validate: {
-      validator: (v: any) => validator.isURL(v),
+      validator: (url: string) => validateUrl.test(url),
       message: 'Некорректный URL',
     },
     required: [true, 'Поле "link" должно быть заполнено'],

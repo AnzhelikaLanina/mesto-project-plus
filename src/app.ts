@@ -2,7 +2,6 @@ import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import mongoose from 'mongoose';
 import { celebrate, errors, Joi } from 'celebrate';
-import cookieParser from 'cookie-parser';
 import userRouter from './routes/users';
 import cardRouter from './routes/cards';
 import { login, createUser } from './controllers/users';
@@ -18,7 +17,6 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 app.use(helmet());
 
 mongoose.connect('mongodb://localhost:27017/mestodb');

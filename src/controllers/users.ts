@@ -16,13 +16,17 @@ export const getUsers = async (req: Request, res: Response, next: NextFunction) 
   }
 };
 
+const findUser = async (req: Request, res: Response, next: NextFunction, id: string) => {
+  const userFind = await user.findById(id);
+  if (!userFind) {
+    throw new NotFoundError('Пользователь по указанному _id не найден');
+  }
+  return res.status(200).send(userFind);
+};
+
 export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userFind = await user.findById(req.params.userId);
-    if (!userFind) {
-      throw new NotFoundError('Пользователь по указанному _id не найден');
-    }
-    return res.status(200).send(userFind);
+    return findUser(req, res, next, req.params.userId);
   } catch (error) {
     if (error instanceof mongoose.Error.CastError) {
       return next(new BadRequestError('Передан некорректный _id для поиска пользователя'));
@@ -45,24 +49,28 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     if (error instanceof Error && error.message.startsWith('E11000')) {
       return next(new ConflictError('Пользователь с такими данными уже существует'));
     }
-    if (error instanceof Error && error.name === 'ValidationError') {
+    if (error instanceof mongoose.Error.ValidationError) {
       return next(new BadRequestError('Переданы некорректные данные для создания карточки'));
     }
     return next(error);
   }
 };
 
+const updateInfo = async (req: any, res: Response, next: NextFunction, info: any) => {
+  const newInfoUser = await user.findByIdAndUpdate(
+    req.user._id,
+    info,
+    { new: true, runValidators: true },
+  );
+  return res.status(200).send(newInfoUser);
+};
+
 export const updateUser = async (req: any, res: Response, next: NextFunction) => {
   try {
     const { name, about } = req.body;
-    const newInfoUser = await user.findByIdAndUpdate(
-      req.user._id,
-      { name, about },
-      { new: true, runValidators: true },
-    );
-    return res.status(200).send(newInfoUser);
+    return updateInfo(req, res, next, { name, about });
   } catch (error) {
-    if (error instanceof Error && error.name === 'ValidationError') {
+    if (error instanceof mongoose.Error.ValidationError) {
       return next(new BadRequestError('Переданы некорректные данные для изменения профиля пользователя'));
     }
     return next(error);
@@ -72,14 +80,9 @@ export const updateUser = async (req: any, res: Response, next: NextFunction) =>
 export const updateUserAvatar = async (req: any, res: Response, next: NextFunction) => {
   try {
     const { avatar } = req.body;
-    const newAvatarUser = await user.findByIdAndUpdate(
-      req.user._id,
-      { avatar },
-      { new: true, runValidators: true },
-    );
-    return res.status(200).send(newAvatarUser);
+    return updateInfo(req, res, next, { avatar });
   } catch (error) {
-    if (error instanceof Error && error.name === 'ValidationError') {
+    if (error instanceof mongoose.Error.ValidationError) {
       return next(new BadRequestError('Переданы некорректные данные для изменения аватара пользователя'));
     }
     return next(error);
@@ -99,15 +102,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
 export const getCurrentUser = async (req: any, res: Response, next: NextFunction) => {
   try {
-    const userFind = await user.findById(req.user._id);
-    if (!userFind) {
-      throw new NotFoundError('Пользователь по указанному _id не найден');
-    }
-    return res.status(200).send(userFind);
+    return findUser(req, res, next, req.user._id);
   } catch (error) {
-    if (error instanceof mongoose.Error.CastError) {
-      return next(new BadRequestError('Передан некорректный _id для поиска пользователя'));
-    }
     return next(error);
   }
 };

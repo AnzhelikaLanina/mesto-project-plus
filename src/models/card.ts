@@ -31,7 +31,7 @@ const cardSchema = new mongoose.Schema<ICard>({
   },
   likes: [{
     type: mongoose.Schema.Types.ObjectId,
-    default: [mongoose.Schema.Types.ObjectId],
+    default: [],
   }],
   createdAt: {
     type: Date,

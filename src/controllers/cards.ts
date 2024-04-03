@@ -21,7 +21,7 @@ export const createCard = async (req: any, res: Response, next: NextFunction) =>
     const newCard = card.create({ name, link, owner });
     return res.status(201).send(newCard);
   } catch (error) {
-    if (error instanceof Error && error.name === 'ValidationError') {
+    if (error instanceof mongoose.Error.ValidatorError) {
       return next(new BadRequestError('Переданы некорректные данные для создания карточки'));
     }
     return next(error);
